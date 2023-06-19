@@ -1,0 +1,1604 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "Servicios de PRESYA2",
+		"description": "API para la gestión de Préstamos y Avales",
+		"termsOfService": "https://www.igae.pap.hacienda.gob.es",
+		"contact": {
+			"name": "PRESYA2",
+			"url": "https://www.igae.pap.hacienda.gob.es",
+			"email": "presya2@igae.hacienda.gob.es"
+		},
+		"license": {
+			"name": "Apache 2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+		},
+		"version": "1.0.0",
+		"x-logo": {
+      		"url": "https://www.igae.pap.hacienda.gob.es/sitios/igae/es-ES/PublishingImages/Presentacion-IGAE-100x100.gif",
+      		"altText": "Logo de la API"
+  		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:7001/Presya2/restPresya2",
+			"description": "Servidor LOCAL"
+		},		
+		{
+    		"url": "http://deswls.central.sepg.minhac.age:8000/Presya2/restPresya2",
+    		"description": "Servidor DESARROLLO"
+  		}
+	],
+	"security": [
+		{
+			"servicioToken": []
+		}
+	],
+	"tags": [
+		{
+			"name": "Préstamos",
+			"description": "Servicios para obtener la información de los préstamos"
+		},
+		{
+			"name": "Anticipos Reembolsables",
+			"description": "Servicios para manejar información de anticipos reembolsables"
+		}
+	],
+	"paths": {
+		"/anticiposReembolsables/alta": {
+			"post": {
+				"tags": [
+					"Anticipos Reembolsables"
+				],
+				"summary": "Alta de anticipos reembolsables",
+				"operationId": "altaAnticipoReembolsable",
+				"parameters": [
+					{
+						"name": "Sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "Lista de anticipos",
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/Anticipo"
+								}
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "La petición se ha procesado correctamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RespPostAnticipo"
+								},
+								"example": {
+									"anticipos": [
+										{
+											"mensaje": "El anticipo del registro 1 correspondiente al préstamo P35632 ha sido dado de alta correctamente.",
+											"importe cancelado": 0,
+											"importe exceso": 10000.55,
+											"orden del registro": 1
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},
+		"/prestamos": {
+			"get": {
+				"tags": [
+					"Préstamos"
+				],
+				"summary": "Consulta genérica de préstamos",
+				"operationId": "getPrestamos",
+				"parameters": [
+					{
+						"name": "sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "Cantidad máxima de resultados",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"default": "20"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Cantidad de resultados omitidos",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"default": "0"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/PrestamoBasico"
+									}
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},		
+		"/prestamos/{codigoPrestamo}": {
+			"get": {
+				"tags": [
+					"Préstamos"
+				],
+				"summary": "Consulta puntual de un préstamo",
+				"operationId": "getPrestamoById",
+				"parameters": [
+					{
+						"name": "sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "codigoPrestamo",
+						"in": "path",
+						"description": "Código del préstamo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"$ref": "#/components/schemas/Prestamo"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},
+		"/prestamos/{codigoPrestamo}/garantias": {
+			"get": {
+				"tags": [
+					"Préstamos"
+				],
+				"summary": "Consulta garantías del préstamo",
+				"operationId": "getGarantiasPrestamoById",
+				"parameters": [
+					{
+						"name": "sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "codigoPrestamo",
+						"in": "path",
+						"description": "Código del préstamo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/GarantiaPrestamos"
+									}
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},
+		"/datosGeneralesPrestamo/{codigoPrestamo}": {
+			"get": {
+				"tags": [
+					"Datos generales préstamo"
+				],
+				"summary": "Consulta puntual datos generales de un préstamo",
+				"operationId": "datosGeneralesPrestamoPorNumPrestamo",
+				"parameters": [
+					{
+						"name": "sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "codigoPrestamo",
+						"in": "path",
+						"description": "Código del préstamo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"*/*": {
+								"schema": {
+									"$ref": "#/components/schemas/DatosGeneralesPrestamo"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},
+		"/anticiposReembolsables": {
+			"get": {
+				"tags": [
+					"Anticipos Reembolsables"
+				],
+				"summary": "Consulta genérica de anticipos reembolsables",
+				"operationId": "getAnticipos",
+				"parameters": [
+					{
+						"name": "sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "Cantidad máxima de resultados",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"default": "20"
+						}
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "Cantidad de resultados omitidos",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"default": "0"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "La petición se ha procesado correctamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/AnticipoGet"
+									}
+								},
+								"example": [
+									{
+										"numPrestamo": "P13682",
+										"numOpcContable": "00160316310002011",
+										"fechaIngreso": "30/10/2015",
+										"impCancelado": "10,67",
+										"impExceso": null
+									},
+									{
+										"numPrestamo": "P13682",
+										"numOpcContable": "00160316310002011",
+										"fechaIngreso": "30/10/2015",
+										"impCancelado": "10,67",
+										"impExceso": null
+									}
+								]
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		},
+		"/anticiposReembolsables/{codigoPrestamo}": {
+			"get": {
+				"tags": [
+					"Anticipos Reembolsables"
+				],
+				"summary": "Consulta puntual de anticipos reembolsables por préstamo",
+				"operationId": "obtenerAnticipoReembolsablesPorPrestamo",
+				"parameters": [
+					{
+						"name": "Sistema",
+						"in": "header",
+						"description": "Sistema",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "codigoPrestamo",
+						"in": "path",
+						"description": "Código del préstamo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "La petición se ha procesado correctamente",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RespGetAnticipo"
+								},
+								"example": {
+									"numPrestamo": "P13682",
+									"anticipos": [
+										{
+											"numPrestamo": "P13682",
+											"numOpcContable": "00160316310002011",
+											"fechaIngreso": "30/10/2015",
+											"impCancelado": "210,67",
+											"impExceso": null
+										},
+										{
+											"numPrestamo": "P13682",
+											"numOpcContable": "00160316310002011",
+											"fechaIngreso": "30/10/2015",
+											"impCancelado": "10,67",
+											"impExceso": null
+										},
+										{
+											"numPrestamo": "P13682",
+											"numOpcContable": "00160316310002011",
+											"fechaIngreso": "30/10/2015",
+											"impCancelado": "10,67",
+											"impExceso": null
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"servicioToken": []
+					}
+				]
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Anticipo": {
+				"type": "object",
+				"properties": {
+					"fechaContable": {
+						"type": "string",
+						"description": "Fecha contable",
+						"example": "10/05/2023"
+					},
+					"fechaReintegro": {
+						"type": "string",
+						"description": "Fecha reintegro",
+						"example": "10/05/2023"
+					},
+					"numPrestamo": {
+						"type": "string",
+						"description": "Número de préstamo",
+						"example": "P35632"
+					},
+					"importe": {
+						"type": "number",
+						"description": "Importe del anticipo",
+						"example": 10000.55
+					},
+					"numOpcContable": {
+						"type": "string",
+						"description": "Número de operación contable",
+						"example": "00160321310001419"
+					}
+				},
+				"description": "Anticipo Reembolsable"
+			},
+			"AnticipoPost": {
+				"type": "object",
+				"properties": {
+					"mensaje": {
+						"type": "string",
+						"description": "mensaje",
+						"example": "El anticipo del registro 1 correspondiente al préstamo PXXXXX ha sido dado de alta correctamente."
+					},
+					"importe cancelado": {
+						"type": "number",
+						"description": "importe cancelado",
+						"example": 0
+					},
+					"importe exceso": {
+						"type": "number",
+						"description": "importe exceso",
+						"example": 139581.35
+					},
+					"orden del registro": {
+						"type": "integer",
+						"description": "Posición registro respuesta",
+						"format": "int32",
+						"example": 1
+					}
+				}
+			},
+			"RespPostAnticipo": {
+				"type": "object",
+				"properties": {
+					"anticipos": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/AnticipoPost"
+						}
+					}
+				}
+			},
+			"DatosBasicosPrestamo": {
+				"required": [
+					"beneficiarios",
+					"codigoServicio",
+					"codigoSituacionPrestamo",
+					"descripcion",
+					"programaAyuda",
+					"referencia",
+					"tipoPrestamo"
+				],
+				"type": "object",
+				"properties": {
+					"descripcion": {
+						"type": "string",
+						"description": "Descripción del préstamo",						
+						"example": "MEJORA DEL PROCESO DE MECANIZADO CON LA INCORPORACIÓN DE NUEVAS TECNOLOGÍAS"
+					},
+					"codigoSituacionPrestamo": {
+						"type": "string",
+						"description": "Código de la situación en la que se encuentra un prestamo",
+						"example": "1"
+					},
+					"descripcionSituacionPrestamo": {
+						"type": "string",
+						"description": "Descripción de la situación en la que se encuentra un prestamo",
+						"example": "ACTIVO CON PAGOS"
+					},
+					"codigoServicio": {
+						"type": "string",
+						"description": "Código del servicio asociado al préstamo",
+						"example": "10"
+					},
+					"descripcionServicio": {
+						"type": "string",
+						"description": "Nombre del servicio asociado al préstamo",
+						"example": "DIRECCION GENERAL DE INVESTIGACION"
+					},
+					"referencia": {
+						"type": "string",
+						"description": "Referencia externa del préstamo",
+						"example": "RCI04000020190110"
+					},
+					"fechaConcesion": {
+						"type": "string",
+						"description": "Fecha de concesión del préstamo",
+						"format": "date-time"
+					},
+					"programaAyuda": {
+						"type": "string",
+						"description": "Programa de ayuda al que estÃ¡ vinculado el préstamo",
+						"example": "PLAN VIVE 2008/2010"
+					},
+					"interesMercado": {
+						"type": "boolean",
+						"description": "Indica si se aplica o no el interés de mercado al préstamo"
+					},
+					"plazoPrescripcion": {
+						"type": "integer",
+						"description": "Plazo de prescripción del préstamo en meses",
+						"format": "int32",
+						"example": 48
+					},
+					"tipoPrestamo": {
+						"type": "string",
+						"description": "Tipo de préstamo",
+						"example": "N"
+					},
+					"beneficiarios": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/Tercero"
+						}
+					}
+				},
+				"description": "Datos básicos del préstamo"
+			},
+			"PrestamoBasico": {
+				"required": [
+					"codigo",
+					"datosBasicos",
+					"selfLink"
+				],
+				"type": "object",
+				"properties": {
+					"codigo": {
+						"type": "string",
+						"description": "Código del prestamo en PRESYA'2",
+						"example": "PXXXXX"
+					},
+					"selfLink": {
+						"type": "string",
+						"description": "URI del préstamo",
+						"format": "uri",
+						"example": "/prestamos/PXXXXX"
+					},
+					"datosBasicos": {
+						"$ref": "#/components/schemas/DatosBasicosPrestamo"
+					}
+				},
+				"description": "Representa los datos mínimos de un préstamo"
+			},
+			"Tercero": {
+				"required": [
+					"denominacion",
+					"nacionalidad"
+				],
+				"type": "object",
+				"properties": {
+					"codigoTercero": {
+						"type": "string",
+						"description": "Código del tercero",
+						"example": "ES000S4757677H"
+					},
+					"selfLink": {
+						"type": "string",
+						"description": "URI del tercero.",
+						"example": "/terceros/ES000S4757677H"
+					},
+					"denominacion": {
+						"type": "string",
+						"description": "Denominación del tercero",
+						"example": "TERCERO CORRESPONDIENTE AL NIF/CIF: S4757677H"
+					},
+					"nacionalidad": {
+						"type": "string",
+						"description": "Código del país del tercero acorde a la ISO 3166-1."
+					},
+					"enConcursoAcreedores": {
+						"type": "boolean",
+						"description": "Indica si el tercero se encuentra en concurso de acreedores"
+					},
+					"direccionTercero": {
+						"$ref": "#/components/schemas/TerceroDireccionTercero"
+					}
+				},
+				"description": "Representación de un tercero de un préstamo (beneficiario, endosatario, avalista...)"
+			},
+			"TerceroDireccionTercero": {
+				"required": [
+					"codigoPostal",
+					"direccion",
+					"municipio",
+					"pais",
+					"provincia",
+					"tipoVia"
+				],
+				"type": "object",
+				"properties": {
+					"pais": {
+						"type": "string",
+						"description": "Código del país del tercero acorde a la ISO 3166-1.",
+						"example": "ESPAÑA"
+					},
+					"provincia": {
+						"type": "string",
+						"description": "Código INE de la provincia.",
+						"example": "CÁDIZ"
+					},
+					"municipio": {
+						"type": "string",
+						"description": "Código INE del municipio.",
+						"example": "ARCOS DE LA FRONTERA"
+					},
+					"tipoVia": {
+						"type": "string",
+						"description": "Código del tipo de vía",
+						"example": "CL"
+					},
+					"direccion": {
+						"type": "string",
+						"description": "Dirección del tercero.",
+						"example": "Una calle cualquiera"
+					},
+					"numero": {
+						"type": "string",
+						"description": "Número",
+						"example": "24"
+					},
+					"escalera": {
+						"type": "string",
+						"description": "Escalera"
+					},
+					"piso": {
+						"type": "string",
+						"description": "Piso",
+						"example": "3º"
+					},
+					"puerta": {
+						"type": "string",
+						"description": "Puerta",
+						"example": "B"
+					},
+					"codigoPostal": {
+						"type": "integer",
+						"description": "Código postal.",
+						"format": "int32",
+						"example": 28001
+					}
+				},
+				"description": "Dirección de notificación de las cartas de pago"
+			},
+			"DatosPrestamo": {
+				"type": "object",
+				"properties": {
+					"datosEconomicos": {
+						"$ref": "#/components/schemas/DatosPrestamoDatosEconomicos"
+					},
+					"anualidades": {
+						"type": "array",
+						"description": "Listado de las anualidades del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoAnualidades"
+						}
+					},
+					"cuadrosAmortizacion": {
+						"type": "array",
+						"description": "Listado de los cuadros de amortización del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoCuadrosAmortizacion"
+						}
+					},
+					"observaciones": {
+						"type": "array",
+						"description": "Listado con las observaciones del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoObservaciones"
+						}
+					},
+					"documentos": {
+						"type": "array",
+						"description": "Listado de documentos vinculados al préstamo. No incluye el binario del documento. Para recuperarlo, es necesario consultar individualmente cada documento.",
+						"items": {
+							"$ref": "#/components/schemas/DocumentoBasico"
+						}
+					},
+					"revocaciones": {
+						"type": "array",
+						"description": "Listado de las revocaciones del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoRevocaciones"
+						}
+					},
+					"obligacionesPago": {
+						"type": "array",
+						"description": "Listado de las obligaciones de pago del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoObligacionesPago"
+						}
+					},
+					"garantias": {
+						"type": "array",
+						"description": "Listado de las garantías del préstamo",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoGarantias"
+						}
+					},
+					"cancelacionesAnticipadas": {
+						"type": "array",
+						"description": "Listado de cancelaciones anticipadas",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoCancelacionesAnticipadas"
+						}
+					},
+					"quitas": {
+						"type": "array",
+						"description": "Listado de quitas",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoQuitas"
+						}
+					}
+				},
+				"description": "Datos del préstamo"
+			},
+			"DatosPrestamoAnualidades": {
+				"type": "object",
+				"properties": {
+					"ejercicio": {
+						"type": "integer",
+						"description": "Ejercicio al que está vinculada la anualidad",
+						"format": "int32",
+						"example": 2020
+					},
+					"importePrestamo": {
+						"type": "number",
+						"description": "Importe del préstamo"
+					},
+					"totalAdendasYOtrosPrestamo": {
+						"type": "number",
+						"description": "Total de adendsa y otros"
+					},
+					"importeAnticipo": {
+						"type": "number",
+						"description": "Importe del anticipo"
+					},
+					"totalAdendasYOtrosAnticipos": {
+						"type": "number",
+						"description": "Total adendas y otros anticipos"
+					},
+					"importeSubvencion": {
+						"type": "number",
+						"description": "Importe de subvención"
+					}
+				},
+				"description": "Cada una de las anualidades del préstamo"
+			},
+			"DatosPrestamoAnualidadesAsociadas": {
+				"type": "object",
+				"properties": {
+					"ejercicio": {
+						"type": "integer",
+						"description": "Año de la anualidad",
+						"format": "int32",
+						"example": 2020
+					},
+					"importePrestamoConAdendas": {
+						"type": "number",
+						"description": "Importe del préstamo con adendas"
+					},
+					"importePrestamoNoRevocado": {
+						"type": "number",
+						"description": "Importe del préstamo no revocado"
+					},
+					"importePrestamoARevocar": {
+						"type": "number",
+						"description": "Importe del préstamo a revocar"
+					},
+					"importeAnticipoConAdendas": {
+						"type": "number",
+						"description": "Importe del anticipo con adendas"
+					},
+					"importeAnticipoNoRevocado": {
+						"type": "number",
+						"description": "Importe del anticipo no revocado"
+					},
+					"importeAnticipoARevocar": {
+						"type": "number",
+						"description": "Importe del anticipo a revocar"
+					}
+				},
+				"description": "Anualidad a la que se aplica la revocación"
+			},
+			"DatosPrestamoCancelacionesAnticipadas": {
+				"type": "object",
+				"properties": {
+					"fecha": {
+						"type": "string",
+						"description": "FecHa",
+						"example": "30/11/2018"
+					},
+					"importePrincipal": {
+						"type": "string",
+						"description": "Importe del principal",
+						"example": "0,00"
+					},
+					"importeInteresesFinancieros": {
+						"type": "string",
+						"description": "Importe de intereses financieros",
+						"example": "0,00"
+					},
+					"importeInteresesDemora": {
+						"type": "string",
+						"description": "Importe de intereses de demora",
+						"example": "0,00"
+					},
+					"justificanteInteco": {
+						"type": "string",
+						"description": "Número de justificante en INTECO",
+						"example": "212299707516M"
+					},
+					"fechaIngreso": {
+						"type": "string",
+						"description": "Fecha del ingreso",
+						"format": "date-time"
+					},
+					"estadoIngreso": {
+						"type": "string",
+						"description": "Estado del ingreso",
+						"example": "A"
+					}
+				},
+				"description": "Cada una de las cancelaciones anticipadas"
+			},
+			"DatosPrestamoCuadrosAmortizacion": {
+				"type": "object",
+				"properties": {
+					"ejercicio": {
+						"type": "integer",
+						"description": "Ejercicio",
+						"format": "int32",
+						"example": 2020
+					},
+					"parteAsociada": {
+						"type": "string",
+						"description": "Parte del préstamo asociada al cuadro. Puede ser: I - Importe del préstamo; A - Anticipo; G - Global",
+						"example": "A"
+					},
+					"detalleCuotas": {
+						"type": "array",
+						"description": "Listado de las cuotas vinculadas al cuadro de amortización",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoDetalleCuotas"
+						}
+					}
+				},
+				"description": "Cada uno de los cuadros de amortización. Estos datos son a efectos de la generación automática en PRESYA'2. No hay garantía de que sean coherentes respecto a las cuotas que finalmente tenga el cuadro"
+			},
+			"DatosPrestamoCuadrosAsociados": {
+				"type": "object",
+				"properties": {
+					"ejercicio": {
+						"type": "integer",
+						"description": "Ejercicio",
+						"format": "int32",
+						"example": 2020
+					},
+					"parteAsociada": {
+						"type": "string",
+						"description": "Parte del préstamo asociada al cuadro. Puede ser: I - Importe del préstamo; A - Anticipo; G - Garantía <br><b>RME - G creo que se refiere al caso en que se refiere a ambas partes, anticipo y préstamo (Global)</b>",
+						"example": "A"
+					}
+				}
+			},
+			"DatosPrestamoDatosEconomicos": {
+				"type": "object",
+				"properties": {
+					"presupuestoFinanciado": {
+						"type": "number",
+						"description": "Importe del presupuesto financiado"
+					},
+					"anticipoReembonsable": {
+						"type": "number",
+						"description": "Importe del anticipo reembolsable"
+					},
+					"prestamo": {
+						"type": "number",
+						"description": "Importe del préstamo"
+					},
+					"subvencion": {
+						"type": "number",
+						"description": "Importe de la subvención"
+					},
+					"ingresadoCuotas": {
+						"type": "number",
+						"description": "Ingresado cuotas"
+					},
+					"ingresadoRevocaciones": {
+						"type": "number",
+						"description": "Ingresado revocaciones"
+					},
+					"ingresadoReservPrestamo": {
+						"type": "number",
+						"description": "Ingresado reserv. préstamo"
+					},
+					"totalIngresado": {
+						"type": "number",
+						"description": "Total ingresado"
+					},
+					"contraidoCuotas": {
+						"type": "number",
+						"description": "Contraído cuotas"
+					},
+					"contraidoRevocaciones": {
+						"type": "number",
+						"description": "Contraído revocaciones"
+					},
+					"contraidoReservPrestamo": {
+						"type": "number",
+						"description": "Contraído reserv. préstamo"
+					},
+					"totalContraido": {
+						"type": "number",
+						"description": "Total contraído"
+					},
+					"saldo": {
+						"type": "number",
+						"description": "Saldo del préstamo"
+					},
+					"cuentaPGC": {
+						"type": "integer",
+						"description": "Cuenta de la PGC",
+						"format": "int32",
+						"example": 252900
+					}
+				},
+				"description": "Importes totales del prestamo y otros datos de interes"
+			},
+			"DatosPrestamoDetalleCuotas": {
+				"type": "object",
+				"properties": {
+					"fecha": {
+						"type": "string",
+						"description": "Fecha",
+						"format": "date-time"
+					},
+					"capitalPendiente": {
+						"type": "number",
+						"description": "Capital pendiente",
+						"example": 119955.41
+					},
+					"cuota": {
+						"type": "number",
+						"description": "Importe de la cuota",
+						"example": 119955.41
+					},
+					"capitalAmortizado": {
+						"type": "number",
+						"description": "Importe del capital amortizado",
+						"example": 119955.41
+					},
+					"ingresadoPrincipal": {
+						"type": "number",
+						"description": "Importe ingresado de principal",
+						"example": 119955.41
+					},
+					"ingresadoInteresesFinancieros": {
+						"type": "number",
+						"description": "Importe ingresado de intereses financieros",
+						"example": 0.0
+					},
+					"ingresadoInteresesDemora": {
+						"type": "number",
+						"description": "Importe ingresado de intereses de demora",
+						"example": 0.0
+					},
+					"contraidoPrincipal": {
+						"type": "number",
+						"description": "Importe contraído de principal",
+						"example": 119955.41
+					},
+					"contraidoInteresesFinancieros": {
+						"type": "number",
+						"description": "Importe contraído de intereses financieros",
+						"example": 0.0
+					},
+					"contraidoInteresesDemora": {
+						"type": "number",
+						"description": "Importe contraído de intereses de demora",
+						"example": 0.0
+					},
+					"fechaContraido": {
+						"type": "string",
+						"description": "Fecha del contraído",
+						"format": "date-time"
+					},
+					"fechaIngreso": {
+						"type": "string",
+						"description": "Fecha del ingreso",
+						"format": "date-time"
+					},
+					"justificantesInteco": {
+						"type": "string",
+						"description": "Listado de los números de justificante asociados a la cuota",
+						"example": "212299626598Q"
+					}
+				},
+				"description": "Cada una de las cuotas del cuadro de amortización"
+			},
+			"DatosPrestamoGarantias": {
+				"type": "object",
+				"properties": {
+					"garantia": {
+						"$ref": "#/components/schemas/GarantiaBasica"
+					},
+					"importeGarantia": {
+						"type": "number",
+						"description": "Importe de la garantía aplicado al préstamo"
+					}
+				},
+				"description": "Listado de las garantías del préstamo"
+			},
+			"DatosPrestamoObligacionesPago": {
+				"type": "object",
+				"properties": {
+					"operacionContable": {
+						"type": "string",
+						"description": "Operación contable de la obligación",
+						"example": "00175217310103437"
+					},
+					"importeObligacion": {
+						"type": "number",
+						"description": "Importe de la obligación"
+					},
+					"fechaReconocimiento": {
+						"type": "string",
+						"description": "Fecha de reconocimiento de la obligación.",
+						"format": "date-time"
+					},
+					"fechaContable": {
+						"type": "string",
+						"description": "Fecha contable de la obligación.",
+						"format": "date-time"
+					},
+					"fechaPago": {
+						"type": "string",
+						"description": "Fecha de pago de la obligación.",
+						"format": "date-time"
+					},
+					"tipoObligacion": {
+						"type": "string",
+						"description": "Tipo de obligación.",
+						"example": "OBLIGACIÓN EN FIRME"
+					}
+				},
+				"description": "Representa cada una de las obligaciones de pago asociadas al préstamo."
+			},
+			"DatosPrestamoObservaciones": {
+				"type": "object",
+				"properties": {
+					"codigoTipoObservacion": {
+						"type": "string",
+						"description": "Código del tipo de observación",
+						"example": "098"
+					},
+					"descripcionTipoObservacion": {
+						"type": "string",
+						"description": "Descripción del tipo de observación",
+						"example": "Código PRESYA-1"
+					},
+					"descripcion": {
+						"type": "string",
+						"description": "Texto de la observación",
+						"example": "Traspasado del Ministerio de Ciencia e Innovación"
+					},
+					"fecha": {
+						"type": "string",
+						"description": "Fecha de la observación",
+						"format": "date-time"
+					}
+				},
+				"description": "Observación hecha al préstamo"
+			},
+			"DatosPrestamoPagosAsociados": {
+				"type": "object",
+				"properties": {
+					"numeroOperacionContable": {
+						"type": "string",
+						"description": "Número de operacion contable del pago",
+						"example": "00175217310103437"
+					},
+					"fechaPago": {
+						"type": "string",
+						"description": "Fecha de realización del pago",
+						"format": "date-time"
+					},
+					"importeTotalPago": {
+						"type": "number",
+						"description": "Importe total del pago"
+					},
+					"importeNoRevocado": {
+						"type": "number",
+						"description": "Importe no revocado"
+					},
+					"importeARevocar": {
+						"type": "number",
+						"description": "Importe a revocar"
+					},
+					"justificantesInteco": {
+						"type": "array",
+						"description": "Listado de los números de justificante asociados a la cuota",
+						"example": "213225494136R",
+						"items": {
+							"type": "string",
+							"description": "Listado de los números de justificante asociados a la cuota",
+							"example": "213225494136R"
+						}
+					}
+				},
+				"description": "Pago realizado al que se aplica la revocación"
+			},
+			"DatosPrestamoQuitas": {
+				"type": "object",
+				"properties": {
+					"impTotQuita": {
+						"type": "number",
+						"description": "Importe total quita"
+					},
+					"impGarantizado": {
+						"type": "number",
+						"description": "Importe garantizado"
+					},
+					"impContable": {
+						"type": "number",
+						"description": "Importe contable"
+					},
+					"fecAnulacion": {
+						"type": "string",
+						"description": "Fecha de Anulacion",
+						"format": "date-time"
+					},
+					"tiempoEspera": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"txt": {
+						"type": "string"
+					},
+					"fecCap": {
+						"type": "string",
+						"description": "Fecha de Captura",
+						"format": "date-time"
+					},
+					"indAnulado": {
+						"type": "string"
+					},
+					"tipoQuita": {
+						"$ref": "#/components/schemas/TipoQuitaEntidad"
+					}
+				},
+				"description": "Listado de quitas"
+			},
+			"DatosPrestamoRevocaciones": {
+				"type": "object",
+				"properties": {
+					"fecha": {
+						"type": "string",
+						"description": "Fecha de la revocación",
+						"format": "date-time"
+					},
+					"importe": {
+						"type": "number",
+						"description": "Importe de la revocación"
+					},
+					"importeInteresesFinancieros": {
+						"type": "number",
+						"description": "Importe de los intereses financieros"
+					},
+					"importeInteresesDemora": {
+						"type": "number",
+						"description": "Importe de los intereses de demora"
+					},
+					"fechaContraido": {
+						"type": "string",
+						"description": "Fecha del contraído de la revocación",
+						"format": "date-time"
+					},
+					"contraidoRevocacion": {
+						"type": "number",
+						"description": "Importe contraído de revocación"
+					},
+					"contraidoInteresesFinancieros": {
+						"type": "number",
+						"description": "Importe contraído de intereses financieros"
+					},
+					"contraidoInteresesDemora": {
+						"type": "number",
+						"description": "Importe contraído de intereses de demora"
+					},
+					"fechaIngreso": {
+						"type": "string",
+						"description": "Fecha del ingreso de la revocación",
+						"format": "date-time"
+					},
+					"ingresadoRevocacion": {
+						"type": "number",
+						"description": "Importe ingresado de revocación"
+					},
+					"ingresadoInteresesFinancieros": {
+						"type": "number",
+						"description": "Importe ingresado de intereses financieros"
+					},
+					"ingresadoInteresesDemora": {
+						"type": "number",
+						"description": "Importe ingresado de intereses de demora"
+					},
+					"importeAnulado": {
+						"type": "number",
+						"description": "Importe anulado"
+					},
+					"pagosAsociados": {
+						"type": "array",
+						"description": "Listado de los pagos realizados a los que se aplica la revocación",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoPagosAsociados"
+						}
+					},
+					"anualidadesAsociadas": {
+						"type": "array",
+						"description": "Listado de anualidades a las que se aplica la revocación",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoAnualidadesAsociadas"
+						}
+					},
+					"cuadrosAsociados": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/DatosPrestamoCuadrosAsociados"
+						}
+					}
+				},
+				"description": "Revocación del préstamo"
+			},
+			"DocumentoBasico": {
+				"required": [
+					"descripcion",
+					"id",
+					"selfLink",
+					"tipo"
+				],
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Identificador del documento.",
+						"example": "1930"
+					},
+					"selfLink": {
+						"type": "string",
+						"description": "URI del documento.",
+						"example": "/documentos/214"
+					},
+					"descripcion": {
+						"type": "string",
+						"description": "Descripción del documento.",
+						"example": "Informe detallado de la situación del préstamo."
+					},
+					"tipo": {
+						"type": "string",
+						"description": "Tipo de documento.",
+						"example": "Modelo 069 INGRESOS NO TRIBUT"
+					}
+				},
+				"description": "Representa los datos mínimos de un documento. No incluye contenido binario."
+			},
+			"GarantiaBasica": {
+				"required": [
+					"codTipo",
+					"codigo",
+					"codigoSituacion",
+					"fechaConstitucion",
+					"selfLink"
+				],
+				"type": "object",
+				"properties": {
+					"codigo": {
+						"type": "string",
+						"description": "Código Presya2 de la garantía.",
+						"example": "GXXXXX"
+					},
+					"selfLink": {
+						"type": "string",
+						"description": "URI de la garantía.",
+						"example": "/garantias/GXXXXX"
+					},
+					"codigoSituacion": {
+						"type": "string",
+						"description": "Código de la situación en la que se encuentra la garantía. Se pueden consultar los posibles valores en la tabla maestra correspondiente.",
+						"example": "0"
+					},
+					"descripcionSituacion": {
+						"type": "string",
+						"description": "Código de la situación en la que se encuentra la garantía. Se pueden consultar los posibles valores en la tabla maestra correspondiente.",
+						"example": "VIVA INTEGRA"
+					},
+					"descripcion": {
+						"type": "string",
+						"description": "Descripción de la garantía.",
+						"example": "PROGRAMA DE EXTENSION DE LA BANDA ANCHA EN ZONAS URBANAS"
+					},
+					"referencia": {
+						"type": "string",
+						"description": "Referencia o identificador externo de la Garantía (p.e. su identificador en la Caja General de Depósitos, etc.)",
+						"example": "201900372O0302093"
+					},
+					"fechaConstitucion": {
+						"type": "string",
+						"description": "Fecha de constitución de la garantía",
+						"example": "17/09/2014"
+					},
+					"codTipo": {
+						"type": "string",
+						"description": "Código del tipo de garantía. Se pueden consultar los posibles valores en la tabla maestra correspondiente.",
+						"example": "01"
+					},
+					"descripcionTipo": {
+						"type": "string",
+						"description": "Descripción del tipo de garantía. Se pueden consultar los posibles valores en la tabla maestra correspondiente.",
+						"example": "AVAL DE LA CAJA GENERAL DE DEPÓSITOS"
+					}
+				},
+				"description": "Representa los datos mínimos de una garantía"
+			},
+			"Prestamo": {
+				"required": [
+					"codigo",
+					"datosBasicos",
+					"selfLink"
+				],
+				"type": "object",
+				"properties": {
+					"codigo": {
+						"type": "string",
+						"description": "Código del prestamo en PRESYA'2",
+						"example": "PXXXXX"
+					},
+					"selfLink": {
+						"type": "string",
+						"description": "URI del préstamo",
+						"format": "uri",
+						"example": "/prestamos/PXXXXX"
+					},
+					"datosBasicos": {
+						"$ref": "#/components/schemas/DatosBasicosPrestamo"
+					},
+					"datos": {
+						"$ref": "#/components/schemas/DatosPrestamo"
+					}
+				},
+				"description": "Información de un préstamo"
+			},
+			"TipoQuitaEntidad": {
+				"type": "object",
+				"properties": {
+					"codTipoQuita": {
+						"type": "string"
+					},
+					"descripcion": {
+						"type": "string"
+					}
+				}
+			},
+			"GarantiaPrestamos": {
+				"type": "object",
+				"properties": {
+					"prestamo": {
+						"$ref": "#/components/schemas/PrestamoBasico"
+					},
+					"importe": {
+						"type": "number",
+						"description": "Importe de la garantía aplicado al préstamo"
+					}
+				},
+				"description": "Préstamo e importe asociados a la garantía"
+			},
+			"DatosGeneralesPrestamo": {
+				"type": "object",
+				"properties": {
+					"descripcion": {
+						"type": "string",
+						"description": "Descripción",
+						"example": "JUSTIFICACION EN EXPEDIENTE RESOL 2011 Y CERT_ACM 2011. PROYECTOS I+D (PIA1). N. EXPEDIENTE: PIA12011-1-1 ANUALIDAD. REFERENCIA: TIN2011-27652-C03-03.  EXPTE.: 18398-55"
+					},
+					"servicio": {
+						"type": "string",
+						"description": "Servicio",
+						"example": "DON.GRAL. PLANIF.INVESTIGACIÃ“N"
+					},
+					"situacion": {
+						"type": "string",
+						"description": "Situación",
+						"example": "PARCIALMENTE REVOCADO"
+					},
+					"referenciaExterna": {
+						"type": "string",
+						"description": "Referencia Externa",
+						"example": "CSIC08-3E-015"
+					},
+					"tipoPrestamo": {
+						"type": "string",
+						"description": "Tipo de préstamo",
+						"example": "N"
+					},
+					"fechaConcesion": {
+						"type": "string",
+						"description": "Fecha de concesión del préstamo",
+						"format": "date-time"
+					},
+					"programaAyuda": {
+						"type": "string",
+						"description": "Programa ayuda del préstamo",
+						"example": "PROG. NAC. INFRA. CIENTIF-TECNOL (FONDOS FEDER)"
+					},
+					"cifBeneficiario": {
+						"type": "string",
+						"description": "CIF Beneficiario",
+						"example": "000Q2818002D"
+					},
+					"nombreBefeficiario": {
+						"type": "string",
+						"description": "Nombre Beneficiario",
+						"example": "TERCERO CORRESPONDIENTE AL NIF/CIF: Q2818002D"
+					},
+					"totalObligacionesPagadas": {
+						"type": "number",
+						"description": "Total obligaciones pagadas",
+						"example": 115.8
+					},
+					"totalPresupuestoFinanciado": {
+						"type": "number",
+						"description": "Total presupuesto financiado",
+						"example": 115.8
+					},
+					"totalRevocado": {
+						"type": "number",
+						"description": "Total revocado",
+						"example": 0.0
+					},
+					"totalQuitas": {
+						"type": "number",
+						"description": "Total quitas",
+						"example": 0.0
+					},
+					"totalReintegrado": {
+						"type": "number",
+						"description": "Total reintegrado",
+						"example": 28.95
+					},
+					"totalContraido": {
+						"type": "number",
+						"description": "Total contraÃ­do",
+						"example": 28.95
+					},
+					"prestamoGarantizado": {
+						"type": "string",
+						"description": "Prestamo garantizado",
+						"example": "S"
+					}
+				},
+				"description": "Datos generales del préstamo"
+			},
+			"AnticipoGet": {
+				"type": "object",
+				"properties": {
+					"fechaContable": {
+						"type": "string",
+						"description": "Fecha contable",
+						"example": "10/05/2023"
+					},
+					"fechaReintegro": {
+						"type": "string",
+						"description": "Fecha reintegro",
+						"example": "10/05/2023"
+					},
+					"numPrestamo": {
+						"type": "string",
+						"description": "Número de préstamo",
+						"example": "P35632"
+					},
+					"importe": {
+						"type": "number",
+						"description": "Importe del anticipo",
+						"example": 10000.55
+					},
+					"numOpcContable": {
+						"type": "string",
+						"description": "Número de operación contable",
+						"example": "00160321310001419"
+					}
+				},
+				"description": "Anticipo Reembolsable"
+			},
+			"RespGetAnticipo": {
+				"type": "object",
+				"properties": {
+					"numPrestamo": {
+						"type": "string"
+					},
+					"lista de anticipos reembolsables": {
+						"type": "array",
+						"description": "lista de anticipos reembolsables",
+						"items": {
+							"$ref": "#/components/schemas/AnticipoGet"
+						}
+					}
+				},
+				"description": "Información de la respuesta consulta de anticipos"
+			}
+		},
+		"securitySchemes": {
+			"servicioToken": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	}
+}
